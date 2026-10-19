@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal Guru Wali</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<header class="bg-gradient-to-br from-blue-700 to-blue-500 text-white px-5 pt-8 pb-12 rounded-b-3xl shadow-lg">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-xs uppercase tracking-widest text-blue-100"><i class="fa-solid fa-school mr-1"></i><span id="hSekolah">Memuat...</span></div>
+    <h1 class="text-2xl font-bold mt-1">Portal Guru Wali</h1>
+    <div class="mt-1 text-blue-50 font-medium" id="hKelompok"></div>
+    <div class="text-sm text-blue-100"><span id="hGuru"></span> &bull; TA <span id="hTA"></span></div>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 -mt-8 pb-16">
+  <!-- MENU -->
+  <section id="menu" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></section>
+
+  <!-- VIEW CONTAINER -->
+  <section id="view" class="hidden mt-2">
+    <button id="btnBack" class="mb-3 text-sm font-semibold text-blue-700 bg-white rounded-full px-4 py-2 shadow"><i class="fa-solid fa-arrow-left mr-1"></i>Menu Utama</button>
+
+    <!-- a. Presensi -->
+    <div id="v-presensi" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i>Presensi Berjalan</h2>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <select id="pBulan" class="rounded-lg border border-slate-300 bg-white p-2.5 text-sm"></select>
+        <select id="pSesi" class="rounded-lg border border-slate-300 bg-white p-2.5 text-sm"></select>
+      </div>
+      <button id="pSemua" class="w-full mb-3 bg-emerald-600 text-white font-semibold rounded-lg py-2.5 shadow"><i class="fa-solid fa-check-double mr-1"></i>Semua (H)</button>
+      <div id="pList" class="space-y-2"></div>
+      <button id="pSimpan" class="w-full mt-4 bg-blue-700 text-white font-semibold rounded-lg py-3 shadow"><i class="fa-solid fa-floppy-disk mr-1"></i>Simpan Presensi</button>
+    </div>
+
+    <!-- b. Input Hafalan -->
+    <div id="v-hafalan" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-book-quran text-blue-600 mr-2"></i>Input Hafalan &amp; Shalat</h2>
+      <select id="hSiswa" class="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm mb-3"></select>
+      <div id="hBox" class="hidden">
+        <div class="bg-white rounded-xl shadow p-4 mb-3">
+          <div class="font-semibold mb-2">Hafalan Juz 30 <span id="hJuzCount" class="text-xs text-slate-500"></span></div>
+          <div id="hJuz" class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm"></div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 mb-3">
+          <div class="font-semibold mb-2">Hafalan Bacaan Shalat <span id="hShalatCount" class="text-xs text-slate-500"></span></div>
+          <div id="hShalat" class="grid grid-cols-1 gap-y-1 text-sm"></div>
+        </div>
+        <button id="hSimpan" class="w-full bg-blue-700 text-white font-semibold rounded-lg py-3 shadow"><i class="fa-solid fa-floppy-disk mr-1"></i>Simpan Hafalan</button>
+      </div>
+    </div>
+
+    <!-- c. Rekap Hafalan -->
+    <div id="v-rekapHafalan" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-list-check text-blue-600 mr-2"></i>Rekap Hafalan</h2>
+      <div class="bg-white rounded-xl shadow overflow-x-auto">
+        <table class="w-full text-sm"><thead class="bg-blue-50 text-blue-900"><tr>
+          <th class="p-3 text-left">Siswa</th><th class="p-3 text-center">Juz 30</th><th class="p-3 text-center">Shalat</th><th class="p-3"></th>
+        </tr></thead><tbody id="rhBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- d. Rekap Absen -->
+    <div id="v-rekapAbsen" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-chart-column text-blue-600 mr-2"></i>Rekap Absen</h2>
+      <div class="bg-white rounded-xl shadow overflow-x-auto">
+        <table class="w-full text-sm"><thead class="bg-blue-50 text-blue-900"><tr>
+          <th class="p-3 text-left">Siswa</th><th class="p-2 text-center">H</th><th class="p-2 text-center">S</th><th class="p-2 text-center">I</th><th class="p-2 text-center">A</th><th class="p-2 text-center">C</th><th class="p-2 text-center">% Hadir</th><th class="p-3 text-center">Status</th>
+        </tr></thead><tbody id="raBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- e. Kegiatan -->
+    <div id="v-kegiatan" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-clipboard-list text-blue-600 mr-2"></i>Kegiatan Kelas / Binaan</h2>
+      <div class="bg-white rounded-xl shadow p-4 space-y-2 mb-4">
+        <input id="kTanggal" type="date" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm">
+        <input id="kTopik" type="text" maxlength="200" placeholder="Topik / Nama Kegiatan" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm">
+        <textarea id="kKet" rows="3" maxlength="1000" placeholder="Keterangan singkat" class="w-full rounded-lg border border-slate-300 p-2.5 text-sm"></textarea>
+        <button id="kSimpan" class="w-full bg-blue-700 text-white font-semibold rounded-lg py-2.5 shadow"><i class="fa-solid fa-plus mr-1"></i>Simpan Kegiatan</button>
+      </div>
+      <div id="kList" class="border-l-2 border-blue-300 ml-2 space-y-4"></div>
+    </div>
+
+    <!-- f. Kirim Curhat -->
+    <div id="v-curhat" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-envelope-open-text text-blue-600 mr-2"></i>Kirim Curhat</h2>
+      <div class="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl p-3 text-sm mb-3">
+        <i class="fa-solid fa-lock mr-1"></i><b>Rahasia 100%.</b> Pesanmu hanya bisa dibaca oleh Guru Wali dan tidak tampil di halaman publik mana pun.
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 space-y-2">
+        <select id="cSiswa" class="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm"></select>
+        <input id="cKelas" type="text" readonly placeholder="KELAS (otomatis)" class="w-full rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-sm">
+        <textarea id="cPesan" rows="5" maxlength="2000" placeholder="Tulis pesan, masalah, atau saran untuk Guru Wali..." class="w-full rounded-lg border border-slate-300 p-2.5 text-sm"></textarea>
+        <button id="cKirim" class="w-full bg-blue-700 text-white font-semibold rounded-lg py-2.5 shadow"><i class="fa-solid fa-paper-plane mr-1"></i>Kirim ke Guru Wali</button>
+      </div>
+    </div>
+
+    <!-- g. Kotak Curhat -->
+    <div id="v-kotak" class="hidden">
+      <h2 class="text-lg font-bold mb-3"><i class="fa-solid fa-inbox text-blue-600 mr-2"></i>Kotak Curhat (Guru Wali)</h2>
+      <div class="bg-white rounded-xl shadow p-4 flex gap-2 mb-4">
+        <input id="gPwd" type="password" placeholder="Password Akses Guru Wali" class="flex-1 rounded-lg border border-slate-300 p-2.5 text-sm">
+        <button id="gBuka" class="bg-blue-700 text-white font-semibold rounded-lg px-4 shadow"><i class="fa-solid fa-unlock"></i></button>
+      </div>
+      <div id="gList" class="space-y-3"></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-end sm:items-center justify-center p-3">
+  <div class="bg-white rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto p-5">
+    <div class="flex justify-between items-start mb-3">
+      <h3 id="mTitle" class="font-bold text-lg"></h3>
+      <button id="mClose" class="text-slate-500 text-xl leading-none">&times;</button>
+    </div>
+    <div id="mBody" class="text-sm"></div>
+  </div>
+</div>
+
+<div id="loading" class="hidden fixed inset-0 bg-white/60 z-50 flex items-center justify-center">
+  <div class="bg-white shadow-lg rounded-xl px-5 py-3 text-blue-700 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Memproses...</div>
+</div>
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-white text-sm shadow-lg"></div>
+
+<script>
+var S = { siswa: [], juz: [], shalat: [], bulan: [], pres: {} };
+var COL = { H: 'bg-emerald-600 text-white', S: 'bg-amber-500 text-white', I: 'bg-sky-600 text-white', A: 'bg-red-600 text-white' };
+var MENU = [
+  ['presensi', 'fa-calendar-check', 'Presensi Berjalan', 'bg-blue-600'],
+  ['hafalan', 'fa-book-quran', 'Input Hafalan & Shalat', 'bg-emerald-600'],
+  ['rekapHafalan', 'fa-list-check', 'Rekap Hafalan', 'bg-teal-600'],
+  ['rekapAbsen', 'fa-chart-column', 'Rekap Absen', 'bg-indigo-600'],
+  ['kegiatan', 'fa-clipboard-list', 'Kegiatan Binaan', 'bg-amber-500'],
+  ['curhat', 'fa-envelope-open-text', 'Kirim Curhat', 'bg-pink-500'],
+  ['kotak', 'fa-inbox', 'Kotak Curhat (Guru)', 'bg-slate-700']
+];
+var BULAN_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+function $(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+// GANTI dengan URL Web App Apps Script Anda (berakhiran /exec)
+var API_URL = 'GANTI_DENGAN_URL_WEB_APP_ANDA';
+
+function run(fn) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  var load = $('loading');
+  load.classList.remove('hidden');
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ fn: fn, args: args })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    load.classList.add('hidden');
+    if (!j.ok) throw new Error(j.error || 'Terjadi kesalahan.');
+    return j.data;
+  }).catch(function (e) {
+    load.classList.add('hidden');
+    throw e;
+  });
+}
+function toast(msg, bad) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-white text-sm shadow-lg ' + (bad ? 'bg-red-600' : 'bg-emerald-600');
+  setTimeout(function () { t.classList.add('hidden'); }, 3000);
+}
+function errMsg(e) { return (e && e.message ? e.message : String(e)).replace(/^Error:\s*/, ''); }
+function fail(e) { toast(errMsg(e), true); }
+function fillSiswaSelect(id) {
+  var h = '<option value="">-- Pilih Siswa --</option>';
+  S.siswa.forEach(function (s, i) { h += '<option value="' + i + '">' + esc(s.nama) + ' (' + esc(s.kelas) + ')</option>'; });
+  $(id).innerHTML = h;
+}
+function openModal(title, html) { $('mTitle').textContent = title; $('mBody').innerHTML = html; $('modal').classList.remove('hidden'); }
+
+/* ---------- Navigasi ---------- */
+function buildMenu() {
+  var h = '';
+  MENU.forEach(function (m) {
+    h += '<button data-go="' + m[0] + '" class="bg-white rounded-2xl shadow p-4 text-center active:scale-95 transition">' +
+      '<div class="mx-auto w-12 h-12 rounded-xl ' + m[3] + ' text-white flex items-center justify-center text-xl mb-2"><i class="fa-solid ' + m[1] + '"></i></div>' +
+      '<div class="text-sm font-semibold leading-tight">' + m[2] + '</div></button>';
+  });
+  $('menu').innerHTML = h;
+}
+function go(name) {
+  $('menu').classList.add('hidden');
+  $('view').classList.remove('hidden');
+  MENU.forEach(function (m) { $('v-' + m[0]).classList.add('hidden'); });
+  $('v-' + name).classList.remove('hidden');
+  window.scrollTo(0, 0);
+  if (name === 'presensi') loadPresensi();
+  if (name === 'rekapHafalan') loadRekapHafalan();
+  if (name === 'rekapAbsen') loadRekapAbsen();
+  if (name === 'kegiatan') loadKegiatan();
+}
+function home() {
+  $('view').classList.add('hidden');
+  $('menu').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+/* ---------- a. Presensi ---------- */
+function loadPresensi() {
+  run('getPresensi', $('pBulan').value, $('pSesi').value).then(function (map) {
+    S.pres = map || {};
+    renderPresensi();
+  }).catch(fail);
+}
+function renderPresensi() {
+  var h = '';
+  S.siswa.forEach(function (s, i) {
+    var st = S.pres[s.nama] || '';
+    h += '<div class="bg-white rounded-xl shadow p-3 flex items-center justify-between gap-2">' +
+      '<div class="min-w-0"><div class="font-semibold truncate">' + esc(s.nama) + '</div>' +
+      '<div class="text-xs text-slate-500">Kelas ' + esc(s.kelas) + '</div></div>' +
+      '<div class="flex gap-1 shrink-0">';
+    ['H', 'S', 'I', 'A'].forEach(function (c) {
+      h += '<button data-i="' + i + '" data-c="' + c + '" class="st w-9 h-9 rounded-lg text-sm font-bold ' +
+        (st === c ? COL[c] : 'bg-slate-100 text-slate-500') + '">' + c + '</button>';
+    });
+    h += '</div></div>';
+  });
+  $('pList').innerHTML = h || '<div class="text-center text-slate-500 p-4">Belum ada siswa di sheet Master Siswa.</div>';
+}
+function savePresensi() {
+  var recs = S.siswa.filter(function (s) { return S.pres[s.nama]; })
+    .map(function (s) { return { nama: s.nama, status: S.pres[s.nama] }; });
+  if (!recs.length) return toast('Belum ada status yang dipilih.', true);
+  run('savePresensi', $('pBulan').value, Number($('pSesi').value), recs)
+    .then(function (n) { toast('Presensi tersimpan (' + n + ' siswa).'); }).catch(fail);
+}
+
+/* ---------- b. Hafalan ---------- */
+function renderChecks(boxId, list, checked, cls) {
+  var h = '';
+  list.forEach(function (name, i) {
+    h += '<label class="flex items-center gap-2 py-1"><input type="checkbox" class="' + cls + ' w-4 h-4 accent-blue-700" value="' + i + '"' +
+      (checked.indexOf(name) > -1 ? ' checked' : '') + '><span>' + (boxId === 'hJuz' ? (i + 1) + '. ' : '') + esc(name) + '</span></label>';
+  });
+  $(boxId).innerHTML = h;
+}
+function updateCounts() {
+  $('hJuzCount').textContent = '(' + document.querySelectorAll('.ckJuz:checked').length + ' / ' + S.juz.length + ')';
+  $('hShalatCount').textContent = '(' + document.querySelectorAll('.ckShalat:checked').length + ' / ' + S.shalat.length + ')';
+}
+function loadHafalan() {
+  var i = $('hSiswa').value;
+  if (i === '') { $('hBox').classList.add('hidden'); return; }
+  run('getHafalan', S.siswa[i].nama).then(function (d) {
+    renderChecks('hJuz', S.juz, d.juz, 'ckJuz');
+    renderChecks('hShalat', S.shalat, d.shalat, 'ckShalat');
+    $('hBox').classList.remove('hidden');
+    updateCounts();
+  }).catch(fail);
+}
+function checkedNames(cls, list) {
+  return Array.prototype.map.call(document.querySelectorAll('.' + cls + ':checked'), function (el) { return list[Number(el.value)]; });
+}
+function saveHafalan() {
+  var i = $('hSiswa').value;
+  if (i === '') return;
+  run('saveHafalan', S.siswa[i].nama, checkedNames('ckJuz', S.juz), checkedNames('ckShalat', S.shalat))
+    .then(function (r) { toast('Tersimpan: ' + r.juz + ' surah, ' + r.shalat + ' bacaan shalat.'); }).catch(fail);
+}
+
+/* ---------- c. Rekap Hafalan ---------- */
+var REKAP_H = [];
+function loadRekapHafalan() {
+  run('getRekapHafalan').then(function (rows) {
+    REKAP_H = rows;
+    var h = '';
+    rows.forEach(function (r, i) {
+      h += '<tr class="border-t border-slate-100"><td class="p-3"><div class="font-semibold">' + esc(r.nama) + '</div><div class="text-xs text-slate-500">Kelas ' + esc(r.kelas) + '</div></td>' +
+        '<td class="p-3 text-center whitespace-nowrap">' + r.juz.length + ' / ' + r.totalJuz + '</td>' +
+        '<td class="p-3 text-center whitespace-nowrap">' + r.shalat.length + ' / ' + r.totalShalat + '</td>' +
+        '<td class="p-3"><button data-rh="' + i + '" class="bg-blue-100 text-blue-800 font-semibold rounded-lg px-3 py-1.5 text-xs whitespace-nowrap">Cek / Lihat</button></td></tr>';
+    });
+    $('rhBody').innerHTML = h || '<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada data.</td></tr>';
+  }).catch(fail);
+}
+function showRincian(i) {
+  var r = REKAP_H[i];
+  function list(arr) {
+    return arr.length ? '<ul class="list-disc ml-5 space-y-0.5">' + arr.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<div class="text-slate-500">Belum ada.</div>';
+  }
+  openModal(r.nama + ' (' + r.kelas + ')',
+    '<div class="font-semibold mb-1">Juz 30 (' + r.juz.length + ' / ' + r.totalJuz + ')</div>' + list(r.juz) +
+    '<div class="font-semibold mt-4 mb-1">Bacaan Shalat (' + r.shalat.length + ' / ' + r.totalShalat + ')</div>' + list(r.shalat));
+}
+
+/* ---------- d. Rekap Absen ---------- */
+function loadRekapAbsen() {
+  run('getRekapAbsen').then(function (rows) {
+    var h = '';
+    rows.forEach(function (r) {
+      var badge = r.status === 'Baik' ? 'bg-emerald-100 text-emerald-800' : (r.status === 'Perlu Perhatian' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-600');
+      h += '<tr class="border-t border-slate-100"><td class="p-3"><div class="font-semibold">' + esc(r.nama) + '</div><div class="text-xs text-slate-500">Kelas ' + esc(r.kelas) + '</div></td>' +
+        '<td class="p-2 text-center">' + r.H + '</td><td class="p-2 text-center">' + r.S + '</td><td class="p-2 text-center">' + r.I + '</td>' +
+        '<td class="p-2 text-center">' + r.A + '</td><td class="p-2 text-center">' + r.C + '</td>' +
+        '<td class="p-2 text-center font-semibold whitespace-nowrap">' + r.persen + '%</td>' +
+        '<td class="p-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ' + badge + '">' + esc(r.status) + '</span></td></tr>';
+    });
+    $('raBody').innerHTML = h || '<tr><td colspan="8" class="p-4 text-center text-slate-500">Belum ada data.</td></tr>';
+  }).catch(fail);
+}
+
+/* ---------- e. Kegiatan ---------- */
+function loadKegiatan() {
+  run('getKegiatan').then(function (rows) {
+    var h = '';
+    rows.forEach(function (r) {
+      h += '<div class="relative pl-5"><span class="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-blue-100"></span>' +
+        '<div class="text-xs text-slate-500">' + esc(r.tanggal) + '</div>' +
+        '<div class="font-semibold">' + esc(r.topik) + '</div>' +
+        '<div class="text-sm text-slate-600 whitespace-pre-line">' + esc(r.ket) + '</div></div>';
+    });
+    $('kList').innerHTML = h || '<div class="pl-5 text-slate-500 text-sm">Belum ada kegiatan tercatat.</div>';
+  }).catch(fail);
+}
+function saveKegiatan() {
+  run('saveKegiatan', $('kTanggal').value, $('kTopik').value, $('kKet').value).then(function () {
+    toast('Kegiatan tersimpan.');
+    $('kTopik').value = ''; $('kKet').value = '';
+    loadKegiatan();
+  }).catch(fail);
+}
+
+/* ---------- f. Kirim Curhat ---------- */
+function sendCurhat() {
+  var i = $('cSiswa').value;
+  if (i === '') return toast('Pilih nama siswa terlebih dahulu.', true);
+  run('saveCurhat', S.siswa[i].nama, $('cPesan').value).then(function () {
+    toast('Pesan terkirim ke Guru Wali. Terima kasih sudah bercerita.');
+    $('cPesan').value = '';
+  }).catch(fail);
+}
+
+/* ---------- g. Kotak Curhat ---------- */
+function openKotak() {
+  run('getCurhat', $('gPwd').value).then(function (rows) {
+    var h = '';
+    rows.forEach(function (r) {
+      h += '<div class="bg-white rounded-xl shadow p-4"><div class="flex justify-between gap-2 text-xs text-slate-500"><span>' + esc(r.waktu) + '</span><span>Kelas ' + esc(r.kelas) + '</span></div>' +
+        '<div class="font-semibold mt-1">' + esc(r.nama) + '</div>' +
+        '<div class="text-sm mt-1 whitespace-pre-line">' + esc(r.pesan) + '</div></div>';
+    });
+    $('gList').innerHTML = h || '<div class="text-center text-slate-500 p-4">Belum ada pesan masuk.</div>';
+  }).catch(function (e) { $('gList').innerHTML = ''; fail(e); });
+}
+
+/* ---------- Inisialisasi ---------- */
+document.addEventListener('DOMContentLoaded', function () {
+  buildMenu();
+  $('menu').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
+  $('btnBack').addEventListener('click', home);
+  $('mClose').addEventListener('click', function () { $('modal').classList.add('hidden'); });
+  $('modal').addEventListener('click', function (e) { if (e.target === $('modal')) $('modal').classList.add('hidden'); });
+
+  $('pBulan').addEventListener('change', loadPresensi);
+  $('pSesi').addEventListener('change', loadPresensi);
+  $('pSemua').addEventListener('click', function () { S.siswa.forEach(function (s) { S.pres[s.nama] = 'H'; }); renderPresensi(); });
+  $('pList').addEventListener('click', function (e) {
+    var b = e.target.closest('.st'); if (!b) return;
+    S.pres[S.siswa[Number(b.dataset.i)].nama] = b.dataset.c;
+    renderPresensi();
+  });
+  $('pSimpan').addEventListener('click', savePresensi);
+
+  $('hSiswa').addEventListener('change', loadHafalan);
+  $('hBox').addEventListener('change', updateCounts);
+  $('hSimpan').addEventListener('click', saveHafalan);
+
+  $('rhBody').addEventListener('click', function (e) { var b = e.target.closest('[data-rh]'); if (b) showRincian(Number(b.dataset.rh)); });
+
+  $('kSimpan').addEventListener('click', saveKegiatan);
+  $('cSiswa').addEventListener('change', function () { var i = $('cSiswa').value; $('cKelas').value = i === '' ? '' : S.siswa[i].kelas; });
+  $('cKirim').addEventListener('click', sendCurhat);
+  $('gBuka').addEventListener('click', openKotak);
+  $('gPwd').addEventListener('keydown', function (e) { if (e.key === 'Enter') openKotak(); });
+
+  run('getInitData').then(function (d) {
+    S.siswa = d.siswa; S.juz = d.juz30; S.shalat = d.shalat; S.bulan = d.bulan;
+    $('hSekolah').textContent = d.sekolah; $('hKelompok').textContent = d.kelompok;
+    $('hGuru').textContent = d.guru; $('hTA').textContent = d.tahunAjaran;
+    document.title = 'Portal Guru Wali - ' + d.kelompok;
+
+    $('pBulan').innerHTML = d.bulan.map(function (b) { return '<option>' + esc(b) + '</option>'; }).join('');
+    $('pBulan').value = BULAN_ID[new Date().getMonth()];
+    var o = ''; for (var i = 1; i <= 16; i++) o += '<option value="' + i + '">Pertemuan ' + i + '</option>';
+    $('pSesi').innerHTML = o;
+    $('kTanggal').value = new Date().toISOString().slice(0, 10);
+    fillSiswaSelect('hSiswa'); fillSiswaSelect('cSiswa');
+  }).catch(fail);
+});
+</script>
+</body>
+</html>
